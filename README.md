@@ -2,12 +2,12 @@
 
 This is a repo for trying out various forms of secret injection
 
-## TL;DR
+## Kubernetes setup with CSI
+
+Set up dev vault server
 
 ```sh
 helm repo add hashicorp https://helm.releases.hashicorp.com
-# Just installs Vault CSI provider. Adjust `server.enabled` and `injector.enabled`
-# if you also want helm to install Vault and the Vault Agent injector.
 helm install vault hashicorp/vault \
   --set "server.enabled=false" \
   --set "server.dev.enabled=true" \
@@ -17,34 +17,36 @@ helm install vault hashicorp/vault \
   --create-namespace
 ```
 
+Set up csi-driver
+
 ```sh
 helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 helm install csi secrets-store-csi-driver/secrets-store-csi-driver --set syncSecret.enabled=true --namespace=csi --create-namespace
 ```
 
-```sh
-$ kubectl exec sts/vault -n vault -- vault kv put secret/ngx_htpasswd htpasswd='neo:$apr1$O6MEhCH.$LNJSRhOquKLIkW3sCYpD21'
-$ kubectl exec sts/vault -n vault -- vault auth enable kubernetes
-$ kubectl exec sts/vault -n vault -- vault write auth/kubernetes/config kubernetes_host="https://kubernetes.default:443"
-```
+Set up resources in vault
 
 ```sh
-kubectl exec sts/vault -n vault -it -- sh
-vault policy write internal-app - <<EOF
+$ kubectl exec sts/vault -n vault -it -- sh
+$ vault kv put secret/ngx_htpasswd htpasswd='
+admin:$apr1$S1LM/dVo$Q53WbevvUKjrig8VH.9LK.
+neo:$apr1$O6MEhCH.$LNJSRhOquKLIkW3sCYpD21
+'
+$ vault auth enable kubernetes
+$ vault write auth/kubernetes/config kubernetes_host="https://kubernetes.default:443"
+$ vault policy write internal-app - <<EOF
 path "secret/ngx_htpasswd" { 
     capabilities = ["read"] 
 }
 EOF
-```
-
-```sh
-kubectl exec sts/vault -n vault -- \
-    vault write auth/kubernetes/role/nginx_application \
+$ vault write auth/kubernetes/role/nginx_application \
     bound_service_account_names=application \
     bound_service_account_namespaces=poc \
     policies=internal-app \
     ttl=20m
 ```
+
+## Simple setup in docker compose
 
 ```sh
 $ htpasswd -c .htpasswd neo
