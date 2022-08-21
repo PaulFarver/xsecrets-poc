@@ -23,6 +23,7 @@ spec:
         app: poc
         component: nginx
     spec:
+      serviceAccountName: application
       containers:
         - name: nginx
           image: ngx_secret:1.0.0
@@ -36,6 +37,30 @@ spec:
               readOnly: true
               subPath: htpasswd
       volumes:
-        - name: xsecret
-          secret:
-            secretName: xsecret
+      - name: xsecret
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "vault-htpasswd"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: application
+  namespace: poc
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-htpasswd
+  namespace: poc
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "http://vault.vault:8200"
+    roleName: "nginx_application"
+    objects: |
+      - objectName: "htpasswd"
+        secretPath: "secret/data/ngx_htpasswd"
+        secretKey: "htpasswd"
