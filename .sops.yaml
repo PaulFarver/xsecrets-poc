@@ -1,0 +1,3 @@
+creation_rules:
+  - pgp: CC46A10082B6A79707D6B4E6ADAB4EE69BDF20AA
+    encrypted_regex: stringData

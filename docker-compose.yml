@@ -6,6 +6,7 @@ secrets:
 
 services:
   nginx:
+    image: ngx_secret:1.0.0
     build:
       context: nginx
     ports:
