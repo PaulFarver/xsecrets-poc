@@ -1,3 +1,4 @@
 [submodule "nginx/winXP"]
 	path = nginx/winXP
 	url = git@github.com:PaulFarver/winXP.git
+	branch = master
