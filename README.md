@@ -21,7 +21,7 @@ Set up csi-driver
 
 ```sh
 helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-helm install csi secrets-store-csi-driver/secrets-store-csi-driver --set syncSecret.enabled=true --namespace=csi --create-namespace
+helm upgrade --install csi secrets-store-csi-driver/secrets-store-csi-driver --set enableSecretRotation=true --set syncSecret.enabled=true --namespace=csi --create-namespace
 ```
 
 Set up resources in vault
