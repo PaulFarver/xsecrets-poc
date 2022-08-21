@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: simple-secret-poc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xsecret
+  namespace: simple-secret-poc
+  labels:
+    app: simple-secret-poc
+    component: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-secret-poc
+      component: nginx
+  template:
+    metadata:
+      labels:
+        app: simple-secret-poc
+        component: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: ngx_secret:1.0.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8090
+              name: http
+          volumeMounts:
+            - name: xsecret
+              mountPath: /run/secrets/htpasswd
+              readOnly: true
+              subPath: htpasswd
+      volumes:
+        - name: xsecret
+          secret:
+            secretName: xsecret
+            defaultMode: 420
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: xsecret
+  namespace: simple-secret-poc
+type: Opaque
+stringData:
+  htpasswd: |
+    neo:$apr1$O6MEhCH.$LNJSRhOquKLIkW3sCYpD21
+    paul:$apr1$bPQD67HA$h/Uds/36Z3ibuRo/9./yK/

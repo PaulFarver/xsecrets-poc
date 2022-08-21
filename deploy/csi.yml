@@ -1,26 +1,26 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: poc
+  name: csi-poc
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: xsecret
-  namespace: poc
+  namespace: csi-poc
   labels:
-    app: poc
+    app: csi-poc
     component: nginx
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: poc
+      app: csi-poc
       component: nginx
   template:
     metadata:
       labels:
-        app: poc
+        app: csi-poc
         component: nginx
     spec:
       serviceAccountName: application
@@ -37,24 +37,24 @@ spec:
               readOnly: true
               subPath: htpasswd
       volumes:
-      - name: xsecret
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "vault-htpasswd"
+        - name: xsecret
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "vault-htpasswd"
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: application
-  namespace: poc
+  namespace: csi-poc
 ---
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
   name: vault-htpasswd
-  namespace: poc
+  namespace: csi-poc
 spec:
   provider: vault
   parameters:

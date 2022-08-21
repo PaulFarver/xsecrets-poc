@@ -39,11 +39,28 @@ path "secret/ngx_htpasswd" {
     capabilities = ["read"] 
 }
 EOF
-$ vault write auth/kubernetes/role/nginx_application \
-    bound_service_account_names=application \
-    bound_service_account_namespaces=poc \
-    policies=internal-app \
-    ttl=20m
+
+$ vault write auth/kubernetes/role/nginx_application bound_service_account_names=application bound_service_account_namespaces=csi-poc policies=internal-app ttl=20m
+Success! Data written to: auth/kubernetes/role/nginx_application
+```
+
+Apply resources in kubernetes
+
+```sh
+$ kubectl apply -f deploy/csi.yml
+namespace/csi-poc created
+deployment.apps/xsecret created
+serviceaccount/application created
+secretproviderclass.secrets-store.csi.x-k8s.io/vault-htpasswd created
+```
+
+## Kubernetes simple setup with secrets
+
+```sh
+$ kubectl apply -f deploy/simple.yml
+namespace/simple-secret-poc created
+deployment.apps/xsecret created
+secret/xsecret created
 ```
 
 ## Simple setup in docker compose
