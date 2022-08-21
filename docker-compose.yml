@@ -1,8 +1,14 @@
 version: '3'
 
+secrets:
+  htpasswd:
+    file: .htpasswd
+
 services:
   nginx:
     build:
       context: nginx
     ports:
       - 8090:8090
+    secrets:
+      - htpasswd

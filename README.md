@@ -5,6 +5,13 @@ This is a repo for trying out various forms of secret injection
 ## TL;DR
 
 ```sh
+$ htpasswd -c .htpasswd neo
+New Password:
+Re-type new password:
+Adding password for user neo
+```
+
+```sh
 $ docker compose up
 [+] Building 1.5s (9/9) FINISHED
  => [internal] load build definition from Dockerfile                                                                                                                        0.0s
