@@ -35,7 +35,7 @@ neo:$apr1$O6MEhCH.$LNJSRhOquKLIkW3sCYpD21
 $ vault auth enable kubernetes
 $ vault write auth/kubernetes/config kubernetes_host="https://kubernetes.default:443"
 $ vault policy write internal-app - <<EOF
-path "secret/ngx_htpasswd" { 
+path "secret/data/ngx_htpasswd" { 
     capabilities = ["read"] 
 }
 EOF
