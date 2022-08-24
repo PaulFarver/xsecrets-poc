@@ -2,6 +2,7 @@ version: '3'
 
 services:
   nginx:
+    image: ngx_secret:v1
     build:
       context: nginx
     ports:
