@@ -26,7 +26,7 @@ spec:
       serviceAccountName: application
       containers:
         - name: nginx
-          image: ngx_secret:1.0.0
+          image: ngx_secret:v2
           imagePullPolicy: Never
           ports:
             - containerPort: 8090

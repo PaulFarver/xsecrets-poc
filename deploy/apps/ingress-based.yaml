@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-poc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xsecret
+  namespace: ingress-poc
+  labels:
+    app: ingress-poc
+    component: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-poc
+      component: nginx
+  template:
+    metadata:
+      labels:
+        app: ingress-poc
+        component: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: ngx_secret:v2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8090
+              name: http
+          volumeMounts:
+            - name: xsecret
+              mountPath: /run/secrets/htpasswd
+              readOnly: true
+              subPath: htpasswd
+      volumes:
+        - name: xsecret
+          secret:
+            secretName: xsecret
+            defaultMode: 420
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: xsecret
+  namespace: ingress-poc
+type: Opaque
+stringData:
+  htpasswd: |
+    neo:$apr1$O6MEhCH.$LNJSRhOquKLIkW3sCYpD21
+    paul:$apr1$bPQD67HA$h/Uds/36Z3ibuRo/9./yK/
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: basic-auth
+  namespace: ingress-poc
+type: Opaque
+stringData:
+  auth: |
+    neo:$apr1$O6MEhCH.$LNJSRhOquKLIkW3sCYpD21
+    paul:$apr1$bPQD67HA$h/Uds/36Z3ibuRo/9./yK/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-poc
+  namespace: ingress-poc
+spec:
+  selector:
+    app: ingress-poc
+    component: nginx
+  ports:
+  - port: 80
+    targetPort: http
+    name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: xsecret
+  namespace: ingress-poc
+  labels:
+    name: xsecret
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required'
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: local.domain
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        path: "/"
+        backend:
+          service:
+            name: ingress-poc
+            port: 
+              name: http
