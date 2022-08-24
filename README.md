@@ -35,6 +35,15 @@ $ terraform apply
 ...
 ```
 
+Once you have gained access to the cluster. Apply the prerequisite systems
+
+```sh
+$ kubectl apply -R -f deploy/systems
+namespace/csi created
+...
+statefulset.apps/vault created
+```
+
 ## Kubernetes simple setup with secret
 
 ```sh
@@ -44,14 +53,19 @@ deployment.apps/xsecret created
 secret/xsecret created
 ```
 
-## Kubernetes setup with CSI
+## Kubernetes setup with ingress controller
 
 ```sh
-$ kubectl apply -R -f deploy/systems
-namespace/csi created
-...
-statefulset.apps/vault created
+$ kubectl apply -f deploy/apps/ingress-based.yaml
+namespace/ingress-poc created
+deployment.apps/xsecret created
+secret/xsecret created
+secret/basic-auth created
+service/ingress-poc created
+ingress.networking.k8s.io/xsecret created
 ```
+
+## Kubernetes setup with CSI
 
 Set up resources in vault
 
