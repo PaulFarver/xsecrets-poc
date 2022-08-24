@@ -5,7 +5,7 @@ metadata:
 ---
 # helm repo add hashicorp https://helm.releases.hashicorp.com
 # Rendered with 
-# helm template vault hashicorp/vault --set "server.dev.enabled=true" --set "injector.enabled=false" --set "csi.enabled=true" --namespace vault
+# helm template vault hashicorp/vault --set "server.dev.enabled=true" --set "injector.enabled=false" --set "csi.enabled=true" --namespace vault --no-hooks
 ---
 # Source: vault/templates/csi-serviceaccount.yaml
 apiVersion: v1
@@ -353,45 +353,3 @@ spec:
                   # to this pod while it's terminating
                   "sleep 5 && kill -SIGTERM $(pidof vault)",
                 ]
----
-# Source: vault/templates/tests/server-test.yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: "vault-server-test"
-  namespace: vault
-  annotations:
-    "helm.sh/hook": test
-spec:
-  
-  containers:
-    - name: vault-server-test
-      image: hashicorp/vault:1.11.2
-      imagePullPolicy: IfNotPresent
-      env:
-        - name: VAULT_ADDR
-          value: http://vault.vault.svc:8200
-        
-      command:
-        - /bin/sh
-        - -c
-        - |
-          echo "Checking for sealed info in 'vault status' output"
-          ATTEMPTS=10
-          n=0
-          until [ "$n" -ge $ATTEMPTS ]
-          do
-            echo "Attempt" $n...
-            vault status -format yaml | grep -E '^sealed: (true|false)' && break
-            n=$((n+1))
-            sleep 5
-          done
-          if [ $n -ge $ATTEMPTS ]; then
-            echo "timed out looking for sealed info in 'vault status' output"
-            exit 1
-          fi
-
-          exit 0
-      volumeMounts:
-  volumes:
-  restartPolicy: Never
