@@ -22,6 +22,19 @@ xsecrets-poc-nginx-1  | /docker-entrypoint.sh: Configuration complete; ready for
 
 Page is available at localhost:8090
 
+## Kubernetes setup
+
+Setup a local kubernetes cluster with kind, minikube or kubernetes in docker desktop
+
+Alternatively setup a cluster in AWS with terraform by running
+
+```sh
+$ terraform init
+...
+$ terraform apply
+...
+```
+
 ## Kubernetes simple setup with secret
 
 ```sh
