@@ -35,6 +35,8 @@ clusterrole.rbac.authorization.k8s.io/vault-csi-provider-clusterrole created
 clusterrolebinding.rbac.authorization.k8s.io/vault-csi-provider-clusterrolebinding created
 clusterrolebinding.rbac.authorization.k8s.io/vault-server-binding created
 daemonset.apps/vault-csi-provider created
+statefulset.apps/vault created
+pod/vault-server-test created
 ```
 
 Set up resources in vault
