@@ -4,24 +4,37 @@ This is a repo for trying out various forms of secret injection
 
 ## Kubernetes setup with CSI
 
-Set up dev vault server
-
 ```sh
-helm repo add hashicorp https://helm.releases.hashicorp.com
-helm install vault hashicorp/vault \
-  --set "server.enabled=false" \
-  --set "server.dev.enabled=true" \
-  --set "injector.enabled=false" \
-  --set "csi.enabled=true" \
-  --namespace vault \
-  --create-namespace
-```
-
-Set up csi-driver
-
-```sh
-helm repo add secrets-store-csi-driver https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
-helm upgrade --install csi secrets-store-csi-driver/secrets-store-csi-driver --set enableSecretRotation=true --set syncSecret.enabled=true --namespace=csi --create-namespace
+$ kubectl apply -f deploy/csi-driver.yaml -f deploy/vault.yaml
+namespace/csi created
+customresourcedefinition.apiextensions.k8s.io/secretproviderclasses.secrets-store.csi.x-k8s.io created
+customresourcedefinition.apiextensions.k8s.io/secretproviderclasspodstatuses.secrets-store.csi.x-k8s.io created
+serviceaccount/secrets-store-csi-driver created
+clusterrole.rbac.authorization.k8s.io/secretproviderrotation-role created
+clusterrole.rbac.authorization.k8s.io/secretproviderclasses-admin-role created
+clusterrole.rbac.authorization.k8s.io/secretproviderclasses-viewer-role created
+clusterrole.rbac.authorization.k8s.io/secretprovidersyncing-role created
+clusterrole.rbac.authorization.k8s.io/secretproviderclasses-role created
+clusterrolebinding.rbac.authorization.k8s.io/secretproviderrotation-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/secretprovidersyncing-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/secretproviderclasses-rolebinding created
+daemonset.apps/csi-secrets-store-csi-driver created
+csidriver.storage.k8s.io/secrets-store.csi.k8s.io created
+serviceaccount/csi-secrets-store-csi-driver-upgrade-crds created
+serviceaccount/csi-secrets-store-csi-driver-keep-crds created
+clusterrole.rbac.authorization.k8s.io/csi-secrets-store-csi-driver-upgrade-crds created
+clusterrole.rbac.authorization.k8s.io/csi-secrets-store-csi-driver-keep-crds created
+clusterrolebinding.rbac.authorization.k8s.io/csi-secrets-store-csi-driver-upgrade-crds created
+clusterrolebinding.rbac.authorization.k8s.io/csi-secrets-store-csi-driver-keep-crds created
+job.batch/secrets-store-csi-driver-upgrade-crds created
+job.batch/secrets-store-csi-driver-keep-crds created
+namespace/vault created
+serviceaccount/vault-csi-provider created
+serviceaccount/vault created
+clusterrole.rbac.authorization.k8s.io/vault-csi-provider-clusterrole created
+clusterrolebinding.rbac.authorization.k8s.io/vault-csi-provider-clusterrolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/vault-server-binding created
+daemonset.apps/vault-csi-provider created
 ```
 
 Set up resources in vault
@@ -54,7 +67,7 @@ serviceaccount/application created
 secretproviderclass.secrets-store.csi.x-k8s.io/vault-htpasswd created
 ```
 
-## Kubernetes simple setup with secrets
+## Kubernetes simple setup with secret
 
 ```sh
 $ kubectl apply -f deploy/simple.yml
